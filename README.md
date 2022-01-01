@@ -13,6 +13,15 @@ The release will include:
 - **Launcher** for _PC_
 - _Local_ **multiplayer**
 
+---
+
+## **Changelog**:
+
+Version | Changes | Date
+| - | - | - |
+`v0.1-beta` | Starter app with simple render engine | _31.12.2021_
+
+
 <br>
 
 **Changelog:**
