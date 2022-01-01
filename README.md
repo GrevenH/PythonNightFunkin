@@ -13,14 +13,13 @@ The release will include:
 - **Launcher** for _PC_
 - _Local_ **multiplayer**
 
-</br>
+<br>
 
 ## **Changelog**:
 
 Version | Changes | Date
 | - | - | - |
-`v0.2-beta` | Big update render engine\
-hi | _01.01.2022_
+`v0.2-beta` | Big update render engine<br>Added `data/settings.json` file with keywords:<ul><li>`width`</li><li>height</li></ul>| _01.01.2022_
 `v0.1-beta` | Starter app with simple render engine | _31.12.2021_
 
 **Changelog:**
