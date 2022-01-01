@@ -1,217 +1,278 @@
-from pygame.display import set_mode, set_caption, flip, get_surface
-from pygame.event import get
-from pygame.time import Clock
-from pygame.draw import rect as drawrect
-from pygame.font import SysFont
-from pygame.image import load as imageload
-from pygame.transform import scale
+# Imports
+from json import load
+from os import chdir
 
 from pygame import QUIT, MOUSEBUTTONDOWN, init
-from os import chdir
-from json import load
+from pygame.display import set_mode, set_caption, flip, get_surface
+from pygame.draw import rect as drawrect
+from pygame.event import get
+from pygame.font import SysFont
+from pygame.image import load as imageload
+from pygame.time import Clock
+from pygame.transform import scale
 
-init()
-chdir('assets')
-font = SysFont('Roboto', 64)
+init()  # Init pygame
+chdir('Assets')  # Change path to Assets
+font = SysFont('Arial Black', 64)  # Init font
 
-
-class Rect:
-	def __init__(self, **kwargs):
-		ws, hs = get_surface().get_size()
-		self.origin = kwargs.get('origin') or (1, 1)
-		rect = kwargs.get('rect') or (0.1, 0.1, 0.1, 0.1)
-		x, y, w, h = rect
-		self.rect = (int(ws*(x-w/2+w/2*self.origin[0])), int(hs*(y-w/2+h/2*self.origin[1])), int(ws*w), int(hs*h))
-		self.color = kwargs.get('color') or (0, 0, 0)
-		self.onclick = kwargs.get('onclick')
-		self.loop = kwargs.get('loop')
-		self.tags = []
-	
-	def setrect(self, **kwargs):
-		ws, hs = get_surface().get_size()
-		self.origin = kwargs.get('origin') or self.origin
-		rect = kwargs.get('rect')
-		if rect:
-			x, y, w, h = rect
-			self.rect = (int(ws*(x-w/2+w/2*self.origin[0])), int(hs*(y-w/2+h/2*self.origin[1])), int(ws*w), int(hs*h))
-		self.color = kwargs.get('color') or self.color
-		self.onclick = kwargs.get('onclick')
-		self.loop = kwargs.get('loop')
-
-	def getpos(self):
-		ws, hs = get_surface().get_size()
-		x, y, w, h = self.rect
-		rect = (x/ws, y/hs, w/ws, h/hs)
-		return rect
+WHITE = (255, 255, 255)  # Init white color
+BLACK = (0, 0, 0)  # Init black color
 
 
-class Text:
-	def __init__(self, **kwargs):
-		global font
-		self.text = kwargs.get('text') or 'None'
-		self.color = kwargs.get('color') or (0, 0, 0)
-		ws, hs = get_surface().get_size()
-		self.origin = kwargs.get('origin') or (1, 1)
-		rect = kwargs.get('rect') or (0.1, 0.1, 0.1, 0.1)
-		x, y, w, h = rect
-		self.rect = (int(ws*(x-w/2+w/2*self.origin[0])), int(hs*(y-w/2+h/2*self.origin[1])), int(ws*w), int(hs*h))
-		self.pos, self.size = (self.rect[0], self.rect[1]), (self.rect[2], self.rect[3])
-		self.onclick = kwargs.get('onclick')
-		self.loop = kwargs.get('loop')
-		self.tags = []
-		
-		self.surface = scale(font.render(self.text, True, self.color), self.size)
-		
-	def settext(self, **kwargs):
-		global font
-		self.text = kwargs.get('text') or self.text
-		self.color = kwargs.get('color') or self.color
-		ws, hs = get_surface().get_size()
-		self.origin = kwargs.get('origin') or self.origin
-		rect = kwargs.get('rect')
-		if rect:
-			x, y, w, h = rect
-			self.rect = (int(ws*(x-w/2+w/2*self.origin[0])), int(hs*(y-w/2+h/2*self.origin[1])), int(ws*w), int(hs*h))
-		self.pos, self.size = (self.rect[0], self.rect[1]), (self.rect[2], self.rect[3])
-		self.onclick = kwargs.get('onclick')
-		self.loop = kwargs.get('loop')
-		
-		self.surface = scale(font.render(self.text, True, self.color), self.size)
+class Object:
+    def __init__(self):
+        self.rect = None
+        self.pos = None
 
-	def getpos(self):
-		ws, hs = get_surface().get_size()
-		x, y, w, h = self.rect
-		rect = (x/ws, y/hs, w/ws, h/hs)
-		return rect
+    def setpos(self, **kwargs):
+        ws, hs = get_surface().get_size()
+        pos = kwargs.get('pos')
+        (x, y), (w, h) = pos, (ws / self.rect[2], hs / self.rect[3])
+        self.pos = (int(ws * x), int(hs * y))
+        x, y = self.pos
+        self.rect = (x, y, w, h)
+
+    def getrect(self):
+        ws, hs = get_surface().get_size()
+        x, y, w, h = self.rect
+        rect = (x / ws, y / hs, w / ws, h / hs)
+        return rect
+
+    def getpos(self):
+        ws, hs = get_surface().get_size()
+        x, y, w, h = self.rect
+        pos = (x / ws, y / hs)
+        return pos
+
+    def remove(self, sc):
+        sc.remove(self)
 
 
-class Image:
-	def __init__(self, **kwargs):
-		self.image = kwargs.get('image')
-		rect = kwargs.get('rect') or (0.1, 0.1, 0.1, 0.1)
-		ws, hs = get_surface().get_size()
-		self.origin = kwargs.get('origin') or (1, 1)
-		x, y, w, h = rect
-		self.rect = (int(ws*(x-w/2+w/2*self.origin[0])), int(hs*(y-w/2+h/2*self.origin[1])), int(ws*w), int(hs*h))
-		self.pos, self.size = (self.rect[0], self.rect[1]), (self.rect[2], self.rect[3])
-		self.onclick = kwargs.get('onclick')
-		self.loop = kwargs.get('loop')
-		self.tags = []
-		
-		self.surface = scale(imageload(self.image), self.size)
-		
-	def setimage(self, **kwargs):
-		self.image = kwargs.get('image') or self.image
-		ws, hs = get_surface().get_size()
-		self.origin = kwargs.get('origin') or self.origin
-		rect = kwargs.get('rect')
-		if rect:
-			x, y, w, h = rect
-			self.rect = (int(ws*(x-w/2+w/2*origin[0])), int(hs*(y-w/2+h/2*origin[1])), int(ws*w), int(hs*h))
-		self.pos, self.size = (self.rect[0], self.rect[1]), (self.rect[2], self.rect[3])
-		self.onclick = kwargs.get('onclick')
-		self.loop = kwargs.get('loop')
-		
-		self.surface = scale(imageload(self.image), self.size)
+class Rect(Object):  # Class for rect objects
+    def __init__(self, **kwargs):
+        ws, hs = get_surface().get_size()
+        self.origin = kwargs.get('origin') or (1, 1)
+        rect = kwargs.get('rect') or (0.1, 0.1, 0.1, 0.1)
+        x, y, w, h = rect
+        self.rect = (
+            int(ws * (x - w / 2 + w / 2 * self.origin[0])), int(hs * (y - w / 2 + h / 2 * self.origin[1])), int(ws * w),
+            int(hs * h))
+        self.color = kwargs.get('color') or (0, 0, 0)
+        self.onclick = kwargs.get('onclick')
+        self.loop = kwargs.get('loop')
+        self.tags = []
 
-	def getpos(self):
-		ws, hs = get_surface().get_size()
-		x, y, w, h = self.rect
-		rect = (x/ws, y/hs, w/ws, h/hs)
-		return rect
+    def rerender(self, **kwargs):
+        ws, hs = get_surface().get_size()
+        self.origin = kwargs.get('origin') or self.origin
+        rect = kwargs.get('rect')
+        if rect:
+            x, y, w, h = rect
+            self.rect = (
+                int(ws * (x - w / 2 + w / 2 * self.origin[0])), int(hs * (y - w / 2 + h / 2 * self.origin[1])),
+                int(ws * w),
+                int(hs * h))
+        self.color = kwargs.get('color') or self.color
+        self.onclick = kwargs.get('onclick')
+        self.loop = kwargs.get('loop')
+
+    def setrect(self, **kwargs):
+        ws, hs = get_surface().get_size()
+        pos = kwargs.get('pos')
+        x, y, w, h = self.rect
+        x, y = pos
+        self.origin = kwargs.get('origin') or self.origin
+        self.rect = int(ws * (x - w / 2 + w / 2 * self.origin[0])), int(hs * (y - w / 2 + h / 2 * self.origin[1])), w, h
+
+    def getpos(self):
+        ws, hs = get_surface().get_size()
+        x, y, w, h = self.rect
+        pos = (x / ws, y / hs)
+        return pos
 
 
-class Main:
-	def __init__(self, **kwargs):
-		self.width = kwargs.get('width') or 1280
-		self.height = kwargs.get('height') or 720
-		self.fps = kwargs.get('fps') or 60
-		self.title = kwargs.get('title') or "Python Night Funkin"
-		self.loop = True
-		self.rects = []
-		self.loops = []
-		self.texts = []
-		self.images = []
-		self.onclicks = []
-		
-		self.screen = set_mode((self.width, self.height))
-		set_caption(self.title)
-		
-	def event(self):
-		for e in get():
-			if e.type == QUIT:
-				self.loop = False
-			if e.type == MOUSEBUTTONDOWN:
-				if e.button == 1:
-					for i in self.onclicks:
-						x, y, w, h = i.rect
-						if x <= e.pos[0] <= x+w and y <= e.pos[1] <= y+h:
-							i.onclick(i)
-				
-	def mainloop(self):
-		cl = Clock()
-		while self.loop:
-			self.screen.fill((255, 255, 255))
-			self.event()
-			for i in self.loops:
-				i.loop(i)
-			self.render()
-			flip()
-			cl.tick(0)
-			
-	def render(self):
-		for i in self.rects:
-			drawrect(self.screen, i.color, i.rect)
-		for i in self.images:
-			self.screen.blit(i.surface, i.pos)
-		for i in self.texts:
-			self.screen.blit(i.surface, i.pos)
-			
-	def rect(self, **kwargs):
-		obj = Rect(**kwargs)
-		if kwargs.get('onclick'):
-			self.onclicks += [obj]
-		if kwargs.get('loop'):
-			self.loops += [obj]
-		self.rects += [obj]
-		return obj
-		
-	def text(self, **kwargs):
-		obj = Text(**kwargs)
-		if kwargs.get('onclick'):
-			self.onclicks += [obj]
-		if kwargs.get('loop'):
-			self.loops += [obj]
-		self.texts += [obj]
-		return obj
-		
-	def image(self, **kwargs):
-		obj = Image(**kwargs)
-		if kwargs.get('onclick'):
-			self.onclicks += [obj]
-		if kwargs.get('loop'):
-			self.loops += [obj]
-		self.images += [obj]
-		return obj
+class Text(Object):  # Class for text objects
+    def __init__(self, **kwargs):
+        global font
+        self.text = kwargs.get('text') or 'None'
+        self.color = kwargs.get('color') or (0, 0, 0)
+        ws, hs = get_surface().get_size()
+        self.origin = kwargs.get('origin') or (1, 1)
+        rect = kwargs.get('rect') or (0.1, 0.1, 0.1, 0.1)
+        x, y, w, h = rect
+        self.rect = (
+            int(ws * (x - w / 2 + w / 2 * self.origin[0])), int(hs * (y - w / 2 + h / 2 * self.origin[1])), int(ws * w),
+            int(hs * h))
+        self.pos, self.size = (self.rect[0], self.rect[1]), (self.rect[2], self.rect[3])
+        self.onclick = kwargs.get('onclick')
+        self.loop = kwargs.get('loop')
+        self.tags = []
+
+        self.surface = scale(font.render(self.text, True, self.color), self.size)
+
+    def rerender(self, **kwargs):
+        global font
+        self.text = kwargs.get('text') or self.text
+        self.color = kwargs.get('color') or self.color
+        ws, hs = get_surface().get_size()
+        self.origin = kwargs.get('origin') or self.origin
+        rect = kwargs.get('rect')
+        if rect:
+            x, y, w, h = rect
+            self.rect = (
+                int(ws * (x - w / 2 + w / 2 * self.origin[0])), int(hs * (y - w / 2 + h / 2 * self.origin[1])),
+                int(ws * w),
+                int(hs * h))
+        self.pos, self.size = (self.rect[0], self.rect[1]), (self.rect[2], self.rect[3])
+        self.onclick = kwargs.get('onclick')
+        self.loop = kwargs.get('loop')
+
+        self.surface = scale(font.render(self.text, True, self.color), self.size)
+
+
+class Image(Object):  # Class for image objects
+    def __init__(self, **kwargs):
+        self.image = kwargs.get('image')
+        rect = kwargs.get('rect') or (0.1, 0.1, 0.1, 0.1)
+        ws, hs = get_surface().get_size()
+        self.origin = kwargs.get('origin') or (1, 1)
+        x, y, w, h = rect
+        self.rect = (
+            int(ws * (x - w / 2 + w / 2 * self.origin[0])), int(hs * (y - w / 2 + h / 2 * self.origin[1])), int(ws * w),
+            int(hs * h))
+        self.pos, self.size = (self.rect[0], self.rect[1]), (self.rect[2], self.rect[3])
+        self.onclick = kwargs.get('onclick')
+        self.loop = kwargs.get('loop')
+        self.tags = []
+
+        self.surface = scale(imageload(self.image), self.size)
+
+    def rerender(self, **kwargs):
+        self.image = kwargs.get('image') or self.image
+        ws, hs = get_surface().get_size()
+        self.origin = kwargs.get('origin') or self.origin
+        rect = kwargs.get('rect')
+        if rect:
+            x, y, w, h = rect
+            self.rect = (
+                int(ws * (x - w / 2 + w / 2 * self.origin[0])), int(hs * (y - w / 2 + h / 2 * self.origin[1])),
+                int(ws * w),
+                int(hs * h))
+        self.pos, self.size = (self.rect[0], self.rect[1]), (self.rect[2], self.rect[3])
+        self.onclick = kwargs.get('onclick')
+        self.loop = kwargs.get('loop')
+
+        self.surface = scale(imageload(self.image), self.size)
+
+
+class Main:  # Main application class
+    def __init__(self, **kwargs):
+        self.width = kwargs.get('width') or 1280
+        self.height = kwargs.get('height') or 720
+        self.fps = kwargs.get('fps') or 60
+        self.title = kwargs.get('title') or 'Python Night Funkin'
+        self.loop = True
+        self.objs = []
+        self.rects = []
+        self.texts = []
+        self.images = []
+        self.onclicks = []
+
+        self.screen = set_mode((self.width, self.height))
+        set_caption(self.title)
+
+    def event(self):  # Event listener
+        for e in get():
+            if e.type == QUIT:
+                self.loop = False
+            if e.type == MOUSEBUTTONDOWN:
+                if e.button == 1:
+                    for i in self.onclicks:
+                        x, y, w, h = i.rect
+                        if x <= e.pos[0] <= x + w and y <= e.pos[1] <= y + h:
+                            i.onclick(i)
+
+    def mainloop(self):  # Main loop
+        cl = Clock()
+        while self.loop:
+            self.screen.fill(WHITE)
+            self.event()
+            for i in self.objs:
+                if i.loop:
+                    i.loop(i)
+            self.render()
+            flip()
+            cl.tick(0)
+
+    def render(self):  # Render objects
+        for i in self.rects:
+            drawrect(self.screen, i.color, i.rect)
+        for i in self.images:
+            self.screen.blit(i.surface, i.pos)
+        for i in self.texts:
+            self.screen.blit(i.surface, i.pos)
+
+    def remove(self, obj):  # Remove object from lists
+        if type(obj) == Rect:
+            self.rects.pop(self.rects.index(obj))
+        elif type(obj) == Text:
+            self.texts.pop(self.texts.index(obj))
+        elif type(obj) == Image:
+            self.images.pop(self.images.index(obj))
+        else:
+            return False
+        self.objs.pop(self.objs.index(obj))
+
+    def rect(self, **kwargs):  # Draw rect
+        obj = Rect(**kwargs)
+        if kwargs.get('onclick'):
+            self.onclicks += [obj]
+        self.rects += [obj]
+        self.objs += [obj]
+        return obj
+
+    def text(self, **kwargs):  # Draw text
+        obj = Text(**kwargs)
+        if kwargs.get('onclick'):
+            self.onclicks += [obj]
+        self.texts += [obj]
+        self.objs += [obj]
+        return obj
+
+    def image(self, **kwargs):  # Draw image
+        obj = Image(**kwargs)
+        if kwargs.get('onclick'):
+            self.onclicks += [obj]
+        self.images += [obj]
+        self.objs += [obj]
+        return obj
 
 
 with open('data/settings.json', 'r') as f:
-	sets = load(f)
+    sets = load(f)  # Import settings
 
 
-def play(obj):
-	obj.tags = ['anim']
+# On click functions for objects
+def playclick(obj):
+    obj.loop = playloop
 
 
+# Loop functions for objects
 def playloop(obj):
-	if 'anim' in obj.tags:
-		x, y = obj.pos
-		if obj.getpos()[1] > 0.5:
-			print(obj.getpos())
+    x, y = obj.getpos()
+    obj.setpos(pos=(x - 0.0005, y))
+
+    if obj.getpos()[0] <= 0:
+        print('del')
+        obj.loop = None
+        obj.remove(main)
 
 
-main = Main(width=sets['width'], height=sets['height'], fps=sets['fps'], title=sets['title'])
+main = Main(width=sets['width'], height=sets['height'], fps=sets['fps'], title=sets['title'])  # Create window
 
-playbtn = main.text(origin=(1, -1), rect=(0.1, 0.9, 0.1, 0.1), text='Play', onclick=play, loop=playloop)
+# Objects
+background = main.image(rect=(0, 0, 1, 1), image='images/menu/background.png')
+playbtn = main.text(origin=(1, -1), rect=(0.1, 0.9, 0.12, 0.1), color=WHITE, text='Play', onclick=playclick)
+vertxt = main.text(origin=(1, -1), rect=(0.02, 1, 0.05, 0.03), text='V 0.2.1', color=BLACK)
 
-main.mainloop()
+main.mainloop()  # Call main loop
