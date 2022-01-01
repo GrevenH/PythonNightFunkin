@@ -251,28 +251,48 @@ class Main:  # Main application class
 with open('data/settings.json', 'r') as f:
     sets = load(f)  # Import settings
 
+with open('data/levels.json', 'r') as f:
+    lvls = load(f)
 
-# On click functions for objects
+
+##############################
+#                            #
+#  Graphical User Interface  #
+#                            #
+#       ↓     ↓     ↓        #
+#                            #
+##############################
+
+
 def playclick(obj):
     obj.loop = playloop
 
 
-# Loop functions for objects
 def playloop(obj):
     x, y = obj.getpos()
     obj.setpos(pos=(x - 0.0005, y))
 
     if obj.getpos()[0] <= 0:
-        print('del')
         obj.loop = None
         obj.remove(main)
+        x, y = 0, 1
+
+        for i in lvls:
+            w, h = i['text_size']
+            y -= 0.1
+            main.text(text=i['text'], rect=(x, y, w, h), color=WHITE, origin=(1, -1), loop=levelloop)
 
 
-main = Main(width=sets['width'], height=sets['height'], fps=sets['fps'], title=sets['title'])  # Create window
+def levelloop(obj):
+    x, y = obj.getpos()
+    obj.setpos(pos=(x + 0.0005, y))
+
+
+main = Main(width=sets['width'], height=sets['height'], fps=sets['fps'], title=sets['title'])  # Creating window
 
 # Objects
 background = main.image(rect=(0, 0, 1, 1), image='images/menu/background.png')
 playbtn = main.text(origin=(1, -1), rect=(0.1, 0.9, 0.12, 0.1), color=WHITE, text='Play', onclick=playclick)
-vertxt = main.text(origin=(1, -1), rect=(0.02, 1, 0.05, 0.03), text='V 0.2.1', color=BLACK)
+vertxt = main.text(origin=(1, -1), rect=(0.02, 1, 0.05, 0.03), text=sets['version'], color=BLACK)
 
-main.mainloop()  # Call main loop
+main.mainloop()  # Calling main loop

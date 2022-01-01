@@ -1,6 +1,11 @@
 [
-    {
-        "name": "Test",
-        "namespace": "test"
-    }
+  {
+    "text": "Test",
+    "text_size": [0.15, 0.1],
+    "namespace": "test"
+  },
+  {
+    "text": "Test2",
+    "text_size": [0.15, 0.1]
+  }
 ]
