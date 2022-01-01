@@ -21,7 +21,7 @@ Version | Changes | Date
 | - | - | - |
 `v0.1-beta` | Starter app with simple render engine | _31.12.2021_
 
-
+<span style='background-color:#2e63ff;'></span>
 <br>
 
 **Changelog:**
