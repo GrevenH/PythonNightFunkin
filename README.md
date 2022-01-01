@@ -19,7 +19,8 @@ The release will include:
 
 Version | Changes | Date
 | - | - | - |
-`v0.2-beta` | <ul><li>Big update render engine</li></ul></br>  - hu | _01.01.2022_
+`v0.2-beta` | Big update render engine\
+hi | _01.01.2022_
 `v0.1-beta` | Starter app with simple render engine | _31.12.2021_
 
 **Changelog:**
