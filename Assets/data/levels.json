@@ -1,11 +1,7 @@
 [
   {
-    "text": "Test",
-    "text_size": [0.15, 0.1],
-    "namespace": "test"
-  },
-  {
-    "text": "Test2",
-    "text_size": [0.15, 0.1]
+    "text": "VS Impostor - Defeat",
+    "text_size": [0.28, 0.1],
+    "namespace": "vs impostor defeat"
   }
 ]

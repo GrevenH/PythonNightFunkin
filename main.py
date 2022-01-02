@@ -1,5 +1,12 @@
+#########################
+#                       #
+#  Python Night Funkin  #
+#                       #
+#########################
+
+
 # Imports
-from json import load
+from json import load, dump
 from os import chdir
 
 from pygame import QUIT, MOUSEBUTTONDOWN, init
@@ -44,9 +51,6 @@ class Object:
         pos = (x / ws, y / hs)
         return pos
 
-    def remove(self, sc):
-        sc.remove(self)
-
 
 class Rect(Object):  # Class for rect objects
     def __init__(self, **kwargs):
@@ -60,7 +64,6 @@ class Rect(Object):  # Class for rect objects
         self.color = kwargs.get('color') or (0, 0, 0)
         self.onclick = kwargs.get('onclick')
         self.loop = kwargs.get('loop')
-        self.tags = []
 
     def rerender(self, **kwargs):
         ws, hs = get_surface().get_size()
@@ -73,8 +76,8 @@ class Rect(Object):  # Class for rect objects
                 int(ws * w),
                 int(hs * h))
         self.color = kwargs.get('color') or self.color
-        self.onclick = kwargs.get('onclick')
-        self.loop = kwargs.get('loop')
+        self.onclick = kwargs.get('onclick') or self.onclick
+        self.loop = kwargs.get('loop') or self.loop
 
     def setrect(self, **kwargs):
         ws, hs = get_surface().get_size()
@@ -106,7 +109,6 @@ class Text(Object):  # Class for text objects
         self.pos, self.size = (self.rect[0], self.rect[1]), (self.rect[2], self.rect[3])
         self.onclick = kwargs.get('onclick')
         self.loop = kwargs.get('loop')
-        self.tags = []
 
         self.surface = scale(font.render(self.text, True, self.color), self.size)
 
@@ -124,8 +126,8 @@ class Text(Object):  # Class for text objects
                 int(ws * w),
                 int(hs * h))
         self.pos, self.size = (self.rect[0], self.rect[1]), (self.rect[2], self.rect[3])
-        self.onclick = kwargs.get('onclick')
-        self.loop = kwargs.get('loop')
+        self.onclick = kwargs.get('onclick') or self.onclick
+        self.loop = kwargs.get('loop') or self.loop
 
         self.surface = scale(font.render(self.text, True, self.color), self.size)
 
@@ -143,7 +145,6 @@ class Image(Object):  # Class for image objects
         self.pos, self.size = (self.rect[0], self.rect[1]), (self.rect[2], self.rect[3])
         self.onclick = kwargs.get('onclick')
         self.loop = kwargs.get('loop')
-        self.tags = []
 
         self.surface = scale(imageload(self.image), self.size)
 
@@ -159,8 +160,8 @@ class Image(Object):  # Class for image objects
                 int(ws * w),
                 int(hs * h))
         self.pos, self.size = (self.rect[0], self.rect[1]), (self.rect[2], self.rect[3])
-        self.onclick = kwargs.get('onclick')
-        self.loop = kwargs.get('loop')
+        self.onclick = kwargs.get('onclick') or self.onclick
+        self.loop = kwargs.get('loop') or self.loop
 
         self.surface = scale(imageload(self.image), self.size)
 
@@ -254,7 +255,6 @@ with open('data/settings.json', 'r') as f:
 with open('data/levels.json', 'r') as f:
     lvls = load(f)
 
-
 ##############################
 #                            #
 #  Graphical User Interface  #
@@ -269,31 +269,70 @@ def playclick(obj):
 
 
 def playloop(obj):
+    global levelbtns
     x, y = obj.getpos()
     obj.setpos(pos=(x - 0.005, y))
 
     if obj.getpos()[0] <= 0:
         obj.loop = None
-        obj.remove(main)
+        main.remove(obj)
         x, y = 0, 1
 
         for i in lvls:
             w, h = i['text_size']
             y -= 0.1
-            main.text(text=i['text'], rect=(x, y, w, h), color=WHITE, origin=(1, -1), loop=levelloop, onclick=levelclick).namespace = i['namespace']
+            lvl = main.text(text=i['text'], rect=(x, y, w, h), color=WHITE, origin=(1, -1), loop=levelloop,
+                            onclick=levelclick)
+            lvl.namespace = i['namespace']
+            levelbtns += [lvl]
 
 
 def levelclick(obj):
-	background.rerender(image=f'images/game/{obj.namespace}/background.png')
+    global levelbtns
+
+    for i in levelbtns:
+        main.remove(i)
+    with open(f'data/game/{obj.namespace}/players.json', 'r') as f:
+        players = load(f)
+    with open(f'data/game/{obj.namespace}/song.json', 'r') as f:
+        song = load(f)
+
+    background.rerender(image=f'images/game/{obj.namespace}/background.png')
+    second = main.image(image=f"images/game/{obj.namespace}/players/second/{players['second']['images']['passive'][0]}",
+                        loop=secondloop)
+    second.passiveimages = players['second']['images']['passive']
+
+    imgs = []
+    for i in second.passiveimages:
+        imgs += [f"images/game/{obj.namespace}/players/second/{i}"]
+
+    second.passiveimages = imgs
+    second.song = song
+    second.namespace = obj.namespace
+    second.rpt = True
 
 
 def levelloop(obj):
     x, y = obj.getpos()
     obj.setpos(pos=(x + 0.005, y))
-    
-    if obj.getpos()[0] >= 0.1:
-    	obj.loop = None
 
+    if obj.getpos()[0] >= 0.1:
+        obj.loop = None
+
+
+def firstloop(obj):
+    pass
+
+
+def secondloop(obj):
+    if obj.rpt:
+        if len(obj.passiveimages) > obj.passiveimages.index(obj.image)+1:
+            obj.rerender(image=obj.passiveimages[obj.passiveimages.index(obj.image)+1])
+        else:
+            obj.rerender(image=obj.passiveimages[0])
+
+
+levelbtns = []
 
 main = Main(width=sets['width'], height=sets['height'], fps=sets['fps'], title=sets['title'])  # Creating window
 
