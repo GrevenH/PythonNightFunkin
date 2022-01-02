@@ -31,4 +31,4 @@ Name | App
 | - | - |
 Hi | [ap]
 
-[ap] = Hi
+[ap]: Apps
