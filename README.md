@@ -1,6 +1,6 @@
 # Python Night Funkin
 
-### Latest Version: `v0.3-beta`
+### Latest Version: `v0.3.1-beta`
 
 It is an _amateur_ project.
 
