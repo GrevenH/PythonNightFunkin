@@ -296,10 +296,12 @@ def levelclick(obj):
         players = load(f)
     with open(f'data/game/{obj.namespace}/song.json', 'r') as f:
         song = load(f)
-
+    
+    x, y = players['second']['pos']
+    w, h = players['second']['size']
     background.rerender(image=f'images/game/{obj.namespace}/background.png')
     second = main.image(image=f"images/game/{obj.namespace}/players/second/{players['second']['images']['passive'][0]}",
-                        loop=secondloop)
+                        loop=secondloop, rect=(x, y, w, h))
     second.passiveimages = players['second']['images']['passive']
 
     imgs = []
