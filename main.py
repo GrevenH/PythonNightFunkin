@@ -202,7 +202,7 @@ class Main:  # Main application class
                     i.loop(i)
             self.render()
             flip()
-            cl.tick(0)
+            cl.tick(self.fps)
 
     def render(self):  # Render objects
         for i in self.rects:
@@ -270,7 +270,7 @@ def playclick(obj):
 
 def playloop(obj):
     x, y = obj.getpos()
-    obj.setpos(pos=(x - 0.0005, y))
+    obj.setpos(pos=(x - 0.005, y))
 
     if obj.getpos()[0] <= 0:
         obj.loop = None
@@ -280,12 +280,19 @@ def playloop(obj):
         for i in lvls:
             w, h = i['text_size']
             y -= 0.1
-            main.text(text=i['text'], rect=(x, y, w, h), color=WHITE, origin=(1, -1), loop=levelloop)
+            main.text(text=i['text'], rect=(x, y, w, h), color=WHITE, origin=(1, -1), loop=levelloop, onclick=levelclick).namespace = i['namespace']
+
+
+def levelclick(obj):
+	background.rerender(image=f'images/game/{obj.namespace}/background.png')
 
 
 def levelloop(obj):
     x, y = obj.getpos()
-    obj.setpos(pos=(x + 0.0005, y))
+    obj.setpos(pos=(x + 0.005, y))
+    
+    if obj.getpos()[0] >= 0.1:
+    	obj.loop = None
 
 
 main = Main(width=sets['width'], height=sets['height'], fps=sets['fps'], title=sets['title'])  # Creating window
