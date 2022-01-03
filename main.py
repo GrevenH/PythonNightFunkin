@@ -269,13 +269,16 @@ def playclick(obj):  # On click play
 
 
 def playloop(obj):  # Play loop
-    global levelbtns
     x, y = obj.getpos()
     obj.setpos(pos=(x - 0.005, y))
+    x, y = settingsbtn.getpos()
+    settingsbtn.setpos(pos=(x - 0.005, y))
 
     if obj.getpos()[0] <= 0:
         obj.loop = None
+        global levelbtns
         main.remove(obj)
+        main.remove(settingsbtn)
         x, y = 0, 1
 
         for i in lvls:
@@ -368,13 +371,57 @@ def secondloop(obj):  # Second player loop
             obj.rerender(image=obj.passiveimages[0])
 
 
+def settingsclick(obj):  # On click settings
+    obj.loop = settingsloop
+
+
+def settingsloop(obj):  # Settings loop
+    x, y = obj.getpos()
+    obj.setpos(pos=(x - 0.005, y))
+    x, y = playbtn.getpos()
+    playbtn.setpos(pos=(x - 0.005, y))
+
+    if obj.getpos()[0] <= 0:
+        obj.loop = None
+        main.remove(obj)
+        main.remove(playbtn)
+    
+        backbtn = main.text(origin=(1, -1), rect=(0, 0.9, 0.11, 0.1), color=WHITE, text='Back', onclick=backclick, loop=backloop)
+
+
+def backloop(obj):
+    x, y = obj.getpos()
+    obj.setpos(pos=(x + 0.005, y))
+	
+    if obj.getpos()[0] >= 0.1:
+        obj.loop = None
+
+
+def backoutloop(obj):
+    x, y = obj.getpos()
+    obj.setpos(pos=(x - 0.005, y))
+    
+    if obj.getpos()[0] <= 0:
+        global playbtn
+        global settingsbtn
+        main.remove(obj)
+
+        playbtn = main.text(origin=(1, -1), rect=(0.1, 0.75, 0.12, 0.1), color=WHITE, text='Play', onclick=playclick)
+        settingsbtn = main.text(origin=(1, -1), rect=(0.1, 0.9, 0.16, 0.1), color=WHITE, text='Settings', onclick=settingsclick)
+
+
+def backclick(obj):
+    obj.loop = backoutloop
+
+
 levelbtns = []  # For level buttons
 
 main = Main(width=sets['width'], height=sets['height'], fps=sets['fps'], title=sets['title'])  # Creating window
 
 # Objects
 background = main.image(rect=(0, 0, 1, 1), image='images/menu/background.png')
-playbtn = main.text(origin=(1, -1), rect=(0.1, 0.9, 0.12, 0.1), color=WHITE, text='Play', onclick=playclick)
+playbtn = main.text(origin=(1, -1), rect=(0.1, 0.75, 0.12, 0.1), color=WHITE, text='Play', onclick=playclick)
+settingsbtn = main.text(origin=(1, -1), rect=(0.1, 0.9, 0.16, 0.1), color=WHITE, text='Settings', onclick=settingsclick)
 vertxt = main.text(origin=(1, -1), rect=(0.02, 1, 0.05, 0.03), text=sets['version'], color=BLACK)
 
 main.mainloop()  # Calling main loop
