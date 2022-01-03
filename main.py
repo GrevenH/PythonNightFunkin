@@ -19,14 +19,14 @@ from pygame.time import Clock
 from pygame.transform import scale
 
 init()  # Init pygame
-chdir('Assets')  # Change path to Assets
+chdir('Assets')  # Change dir to Assets
 font = SysFont('Arial Black', 64)  # Init font
 
 WHITE = (255, 255, 255)  # Init white color
 BLACK = (0, 0, 0)  # Init black color
 
 
-class Object:
+class Object:  # Class object for another classes
     def __init__(self):
         self.rect = None
         self.pos = None
@@ -168,19 +168,19 @@ class Image(Object):  # Class for image objects
 
 class Main:  # Main application class
     def __init__(self, **kwargs):
-        self.width = kwargs.get('width') or 1280
-        self.height = kwargs.get('height') or 720
-        self.fps = kwargs.get('fps') or 60
-        self.title = kwargs.get('title') or 'Python Night Funkin'
-        self.loop = True
-        self.objs = []
-        self.rects = []
-        self.texts = []
-        self.images = []
-        self.onclicks = []
+        self.width = kwargs.get('width') or 1280  # Window width
+        self.height = kwargs.get('height') or 720  # Window height
+        self.fps = kwargs.get('fps') or 60  # In game FPS
+        self.title = kwargs.get('title') or 'Python Night Funkin'  # Window title
+        self.loop = True  # Main loop switcher
+        self.objs = []  # All objects
+        self.rects = []  # Rect objects
+        self.texts = []  # Text objects
+        self.images = []  # Image objects
+        self.onclicks = []  # On click events for objects
 
-        self.screen = set_mode((self.width, self.height))
-        set_caption(self.title)
+        self.screen = set_mode((self.width, self.height))  # Init window
+        set_caption(self.title)  # Set title
 
     def event(self):  # Event listener
         for e in get():
@@ -191,27 +191,27 @@ class Main:  # Main application class
                     for i in self.onclicks:
                         x, y, w, h = i.rect
                         if x <= e.pos[0] <= x + w and y <= e.pos[1] <= y + h:
-                            i.onclick(i)
+                            i.onclick(i)  # Call function if clicked
 
     def mainloop(self):  # Main loop
         cl = Clock()
         while self.loop:
-            self.screen.fill(WHITE)
-            self.event()
+            self.screen.fill(WHITE)  # Fill screen
+            self.event()  # Call events
             for i in self.objs:
                 if i.loop:
                     i.loop(i)
-            self.render()
-            flip()
-            cl.tick(self.fps)
+            self.render()  # Call render
+            flip()  # Update screen
+            cl.tick(self.fps)  # FPS
 
     def render(self):  # Render objects
         for i in self.rects:
-            drawrect(self.screen, i.color, i.rect)
+            drawrect(self.screen, i.color, i.rect)  # Draw rects
         for i in self.images:
-            self.screen.blit(i.surface, i.pos)
+            self.screen.blit(i.surface, i.pos)  # Draw images
         for i in self.texts:
-            self.screen.blit(i.surface, i.pos)
+            self.screen.blit(i.surface, i.pos)  # Draw texts
 
     def remove(self, obj):  # Remove object from lists
         if type(obj) == Rect:
@@ -253,7 +253,7 @@ with open('data/settings.json', 'r') as f:
     sets = load(f)  # Import settings
 
 with open('data/levels.json', 'r') as f:
-    lvls = load(f)
+    lvls = load(f)  # Import levels
 
 ##############################
 #                            #
@@ -264,11 +264,11 @@ with open('data/levels.json', 'r') as f:
 ##############################
 
 
-def playclick(obj):
+def playclick(obj):  # On click play
     obj.loop = playloop
 
 
-def playloop(obj):
+def playloop(obj):  # Play loop
     global levelbtns
     x, y = obj.getpos()
     obj.setpos(pos=(x - 0.005, y))
@@ -287,7 +287,7 @@ def playloop(obj):
             levelbtns += [lvl]
 
 
-def levelclick(obj):
+def levelclick(obj):  # On click level
     global levelbtns
 
     for i in levelbtns:
@@ -296,10 +296,40 @@ def levelclick(obj):
         players = load(f)
     with open(f'data/game/{obj.namespace}/song.json', 'r') as f:
         song = load(f)
+        
+    background.rerender(image=f'images/game/{obj.namespace}/background.png')
+    firstinit(players, song, obj)
+    secondinit(players, song, obj)
+
+
+def firstinit(players, song, obj):  # Init first player
+    if not len(players['first']):
+    	return
+    	
+    x, y = players['first']['pos']
+    w, h = players['first']['size']
     
+    first = main.image(image=f"images/game/{obj.namespace}/players/first/{players['first']['images']['passive'][0]}",
+                        loop=firstloop, rect=(x, y, w, h))
+    first.passiveimages = players['first']['images']['passive']
+
+    imgs = []
+    for i in first.passiveimages:
+        imgs += [f"images/game/{obj.namespace}/players/first/{i}"]
+
+    first.passiveimages = imgs
+    first.song = song
+    first.namespace = obj.namespace
+    first.rpt = True
+
+
+def secondinit(players, song, obj):  # Init second player
+    if not len(players['second']):
+    	return
+    	
     x, y = players['second']['pos']
     w, h = players['second']['size']
-    background.rerender(image=f'images/game/{obj.namespace}/background.png')
+    
     second = main.image(image=f"images/game/{obj.namespace}/players/second/{players['second']['images']['passive'][0]}",
                         loop=secondloop, rect=(x, y, w, h))
     second.passiveimages = players['second']['images']['passive']
@@ -314,7 +344,7 @@ def levelclick(obj):
     second.rpt = True
 
 
-def levelloop(obj):
+def levelloop(obj):  # Level loop
     x, y = obj.getpos()
     obj.setpos(pos=(x + 0.005, y))
 
@@ -322,11 +352,7 @@ def levelloop(obj):
         obj.loop = None
 
 
-def firstloop(obj):
-    pass
-
-
-def secondloop(obj):
+def firstloop(obj):  # First player loop
     if obj.rpt:
         if len(obj.passiveimages) > obj.passiveimages.index(obj.image)+1:
             obj.rerender(image=obj.passiveimages[obj.passiveimages.index(obj.image)+1])
@@ -334,7 +360,15 @@ def secondloop(obj):
             obj.rerender(image=obj.passiveimages[0])
 
 
-levelbtns = []
+def secondloop(obj):  # Second player loop
+    if obj.rpt:
+        if len(obj.passiveimages) > obj.passiveimages.index(obj.image)+1:
+            obj.rerender(image=obj.passiveimages[obj.passiveimages.index(obj.image)+1])
+        else:
+            obj.rerender(image=obj.passiveimages[0])
+
+
+levelbtns = []  # For level buttons
 
 main = Main(width=sets['width'], height=sets['height'], fps=sets['fps'], title=sets['title'])  # Creating window
 
