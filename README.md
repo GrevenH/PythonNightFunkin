@@ -1,7 +1,6 @@
 # Python Night Funkin
 
-![Version](https://img.shields.io/badge/Version-v0.4-green)
-![Beta](https://img.shields.io/badge/-beta-orange)
+![Version](https://img.shields.io/badge/dynamic/json?color=green&label=Version&query=%24.version&url=https%3A%2F%2Fraw.githubusercontent.com%2FGrevenH%2FPythonNightFunkin%2Fmain%2FAssets%2Fdata%2Fsettings.json&style=plastic)
 
 It is an _amateur_ project.
 
