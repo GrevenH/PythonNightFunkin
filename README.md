@@ -29,4 +29,4 @@ Version | Changes | Date
 ![Version](https://img.shields.io/badge/-v0.3--beta-orange) | <ul><li>Levels are now displayed in the menu</ul> | _02.01.2022_
 ![Version](https://img.shields.io/badge/-v0.2.1--beta-orange) | <ul><li>Some code optimizations</li><li>Another update render engine</li><li>Added `data/levels.json` file for levels with keywords: `text`, `text_size`, `namestate`</li><li>Added `images/menu/background.png` file for the background in the menu</li><li>Added `version` keyword for `data/settings.json` file</ul> | _01.01.2022_
 ![Version](https://img.shields.io/badge/-v0.2--beta-orange) | <ul><li>Big update render engine</li><li>Added `data/settings.json` file for settings in the game with keywords: `width`, `height`, `fps`, `title`</li></ul> | _01.01.2022_
-![Version](https://img.shields.io/badge/-v0.1--beta-orange) | Starter app with simple render engine | ![Version](https://img.shields.io/badge/31.12.2021-gray)
+![Version](https://img.shields.io/badge/-v0.1--beta-orange) | Starter app with simple render engine | ![](https://img.shields.io/badge/31.12.2021-gray)
