@@ -387,6 +387,8 @@ def settingsloop(obj):  # Settings loop
         main.remove(playbtn)
     
         backbtn = main.text(origin=(1, -1), rect=(0, 0.9, 0.11, 0.1), color=WHITE, text='Back', onclick=backclick, loop=backloop)
+        
+        resbtn = main.text(origin=(-1, 0), rect=(0.9, 0.2, 0.15, 0.1), color=WHITE, text='Resolution')
 
 
 def backloop(obj):
